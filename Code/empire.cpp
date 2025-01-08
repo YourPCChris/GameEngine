@@ -116,67 +116,60 @@ void MakeUserShape(int screenWidth, int shapeNum, std::vector<std::shared_ptr<Sh
 	std::cout << "Make User Shape function" << std::endl;
 	bool timerOver = false;
 	double startTime = GetTime();
-	double timerLength = 5.00;
 	std::shared_ptr<Shape> testShape = nullptr;
 
 
-	while (timerOver == false)
+	while (!timerOver)
 	{
-		//std::cout << "while loop" << std::endl;
 		double elapsedTime = GetTime() - startTime;
-		std::cout << "Elapsed Time: " << elapsedTime << std::endl;
-	
-		if (elapsedTime > timerLength){
-			timerOver = true;
-			std::cout << "Timer Over" << std::endl;
-		}
-	
+		timerOver = (elapsedTime > 10) ? true : false;
+
+		//Wait for button press to be released
+		//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::cout << "In the while loop" << std::endl;
+
 		//Get New Shape position on mouse click
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && (GetTime() - startTime) > 3){
+		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
 			Vector2 MousePos = GetMousePosition();
 			std::cout << "Mouse 'x': " << MousePos.x << " Mouse 'y': " << MousePos.y << std::endl;
-			/*
-			if (MousePos.x < screenWidth/3){ 
-				std::cout << "Clicked on panel, cancling shape" << std::endl;
-				return;
-			}
-			*/
-			if (MousePos.x < screenWidth/3){
-				switch (shapeNum)
+
+			if (MousePos.x > screenWidth/3){
+						switch (shapeNum)
 				{
 					case 0:
 						//Square
 						std::cout << "Square" << std::endl;
 						//timerOver = true;
 						testShape = std::make_shared<Square>();
-						testShape->changeX(MousePos.x);
-						testShape->changeY(MousePos.y);
-						testShape->changeColor(RED);
 						break;
 					case 1:
 						//Circle
 						std::cout << "Circle" << std::endl;
 						testShape = std::make_shared<EmpireCircle>();
-						testShape->changeX(MousePos.x);
-						testShape->changeY(MousePos.y);
-						testShape->changeColor(RED);
 						break;
 					case 2:
 						//Hollow Circle
 						std::cout << "Hollow Circle" << std::endl;
 						testShape = std::make_shared<HollowCircle>();
-						testShape->changeX(MousePos.x);
-						testShape->changeY(MousePos.y);
-						testShape->changeColor(RED);
 						break;
 				}
-				
-				if (testShape != nullptr){ timerOver = true;}
-			}	       
+
+				if (testShape != nullptr){ 
+
+					testShape->changeX(MousePos.x);
+					testShape->changeY(MousePos.y);
+					testShape->changeColor(RED);
+					timerOver = true;
+				}
+			}else{
+				std::cout << "Clicked On Panel, Cancling Shape creation" << std::endl;
+				return;
+			}
 		}
 	}
 	if (testShape){ 
 		shapes.push_back(testShape);
+		std::cout << "Added shape to vector" << std::endl;
 	}
 	std::cout << "Function Over" << std::endl;
 }
