@@ -105,7 +105,91 @@ class HollowCircle: public Shape
 
 
 //Functions
-void DrawPanelLeft(int screenWidth, int screenHeight, std::vector<std::shared_ptr<Shape>>& buttons)
+void MakeUserShape(int screenWidth, int shapeNum, std::vector<std::shared_ptr<Shape>>& shapes)
+{
+	//Wait for left click
+	//If left click is past the Left hand panel
+	//If left click is on the left hand panel then cancle
+	//add shape to shapes vector
+	//draw shapes in draw window function using DrawUserShapes() function 
+	//end 
+	std::cout << "Make User Shape function" << std::endl;
+	bool timerOver = false;
+	double startTime = GetTime();
+	double timerLength = 5.00;
+	std::shared_ptr<Shape> testShape = nullptr;
+
+
+	while (timerOver == false)
+	{
+		//std::cout << "while loop" << std::endl;
+		double elapsedTime = GetTime() - startTime;
+		std::cout << "Elapsed Time: " << elapsedTime << std::endl;
+	
+		if (elapsedTime > timerLength){
+			timerOver = true;
+			std::cout << "Timer Over" << std::endl;
+		}
+	
+		//Get New Shape position on mouse click
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && (GetTime() - startTime) > 3){
+			Vector2 MousePos = GetMousePosition();
+			std::cout << "Mouse 'x': " << MousePos.x << " Mouse 'y': " << MousePos.y << std::endl;
+			/*
+			if (MousePos.x < screenWidth/3){ 
+				std::cout << "Clicked on panel, cancling shape" << std::endl;
+				return;
+			}
+			*/
+			if (MousePos.x < screenWidth/3){
+				switch (shapeNum)
+				{
+					case 0:
+						//Square
+						std::cout << "Square" << std::endl;
+						//timerOver = true;
+						testShape = std::make_shared<Square>();
+						testShape->changeX(MousePos.x);
+						testShape->changeY(MousePos.y);
+						testShape->changeColor(RED);
+						break;
+					case 1:
+						//Circle
+						std::cout << "Circle" << std::endl;
+						testShape = std::make_shared<EmpireCircle>();
+						testShape->changeX(MousePos.x);
+						testShape->changeY(MousePos.y);
+						testShape->changeColor(RED);
+						break;
+					case 2:
+						//Hollow Circle
+						std::cout << "Hollow Circle" << std::endl;
+						testShape = std::make_shared<HollowCircle>();
+						testShape->changeX(MousePos.x);
+						testShape->changeY(MousePos.y);
+						testShape->changeColor(RED);
+						break;
+				}
+				
+				if (testShape != nullptr){ timerOver = true;}
+			}	       
+		}
+	}
+	if (testShape){ 
+		shapes.push_back(testShape);
+	}
+	std::cout << "Function Over" << std::endl;
+}
+
+void DrawUserShapes(std::vector<std::shared_ptr<Shape>>& shapes)
+{
+	for (auto const& shape : shapes)
+	{
+		shape->Draw();
+	}
+}
+
+void DrawPanelLeft(int screenWidth, int screenHeight, std::vector<std::shared_ptr<Shape>>& buttons, std::vector<std::shared_ptr<Shape>>& shapes)
 {
 	DrawRectangle(0,0, screenWidth/3, screenHeight, BLACK);
 	DrawRectangleLines(0,0, screenWidth/3, screenHeight, GRAY);
@@ -129,18 +213,21 @@ void DrawPanelLeft(int screenWidth, int screenHeight, std::vector<std::shared_pt
 			if (auto square = std::dynamic_pointer_cast<Square>(button)){
 				if (CheckCollisionPointRec(MousePos, square->GetShape())){
 					std::cout << "Button Pressed" << std::endl;
+					MakeUserShape(screenWidth, 0, shapes);
 				}
 			}
 			else if (auto empireCircle = std::dynamic_pointer_cast<EmpireCircle>(button)){
 				if (CheckCollisionPointCircle(MousePos,
 							(Vector2){(float)empireCircle->getX(), (float)empireCircle->getY()}, (float)empireCircle->getRadius())){
 					std::cout << "Circle Button Pressed" << std::endl;
+					MakeUserShape(screenWidth, 1, shapes);
 				}
 			}
 			else if (auto hollowCircle = std::dynamic_pointer_cast<HollowCircle>(button)){
 				if (CheckCollisionPointCircle(MousePos, 
 							(Vector2){(float)hollowCircle->getX(), (float)hollowCircle->getY()}, hollowCircle->getRadius())){
 					std::cout << "Hollow Circle button pressed" << std::endl;
+					MakeUserShape(screenWidth, 2, shapes);
 				}
 			}
 		}				
@@ -150,10 +237,10 @@ void DrawPanelLeft(int screenWidth, int screenHeight, std::vector<std::shared_pt
 void DrawWindow(int screenWidth, int screenHeight, std::vector<std::shared_ptr<Shape>>& buttons, std::vector<std::shared_ptr<Shape>>& shapes)
 {
 	ClearBackground(BLUE);
-	DrawPanelLeft(screenWidth, screenHeight, buttons);
+	DrawPanelLeft(screenWidth, screenHeight, buttons, shapes);
 
 	//Draw user shapes 
-		
+	DrawUserShapes(shapes);
 }
 
 
