@@ -16,24 +16,105 @@ class GameObj
     protected:
         Vector2 coord;
         Color color;
+        int width,
+            height;
+        bool isButton;
 
     public:
         virtual void Update() = 0;
         virtual void Draw() = 0;
 };
+class Square : public GameObj
+{
+    public:
+        Square(bool isNewButton, int x, int y, int newWidth=40, int newHeight=40)
+        {
+            color = GRAY;
+            coord.x = x;
+            coord.y = y;
+            width = newWidth;
+            height = newHeight;
+            isButton = isNewButton;
+        }
+
+        void Update() override 
+        {
+            if (!isButton){
+                std::cout << "Updating Square..." << std::endl;
+            }
+        }
+
+        void Draw() override 
+        {
+            DrawRectangle(coord.x, coord.y, width, height, color);
+        }
+};
+class ECircle : public GameObj
+{
+    public:
+        ECircle(bool isNewButton, int x, int y, int newRadius=20)
+        {
+            coord.x = x+newRadius;
+            coord.y = y;
+            radius = newRadius;
+            color = GRAY;
+            isButton = isNewButton;
+        }
+
+        void Update() override 
+        {
+            if (!isButton){
+                std::cout << "Updating ECircle..." << std::endl;
+            }
+        }
+
+        void Draw() override
+        {
+            DrawCircle(coord.x, coord.y, radius, color);
+        }
+        
+    private:
+        int radius;
+};
+                    
 class Panel : public GameObj
 {
     public:
+        Panel()
+        {
+            coord.x= 0;
+            coord.y= 0;
+            width = GetScreenWidth() / 3;
+            height = GetScreenHeight();
+            color = BLACK;
+            isButton = false;
+
+            buttons.push_back(std::make_unique<Square>(true, width/4, height*0.3));
+            buttons.push_back(std::make_unique<ECircle>(true, width/4, height*0.4));
+        }
+
         void Update() override
         {
-            std::cout << "Update..." << std::endl;
+            if (!isButton){
+                std::cout << "Updating Panel.." << std::endl;
+            }
         }
+
         void Draw() override
         {
             std::cout << "Draw..." << std::endl;
-        }
-    private:
+            DrawRectangle(coord.x, coord.y, width, height, color);
 
+            for (auto& button : buttons)
+            {
+                if (button){
+                    button->Draw();
+                }
+            }
+        }
+
+    private:
+        std::vector<std::unique_ptr<GameObj>> buttons;
 };
 
 class Game
@@ -45,7 +126,7 @@ class Game
             SetTargetFPS(60);
 
             //add game objs
-            //gameObjects.push_back(std::make_unique<Panel>());
+            gameObjs.push_back(std::make_unique<Panel>());
         }
 
         void Run()
