@@ -11,61 +11,83 @@
 #include "raylib.h"
 
 //Classes
-class Button
+class GameObj
 {
-    public:
     protected:
-        int x,
-            y,
-            width,
-            height;
+        Vector2 coord;
+        Color color;
+
+    public:
+        virtual void Update() = 0;
+        virtual void Draw() = 0;
 };
-class Panel
+class Panel : public GameObj
 {
     public:
+        void Update() override
+        {
+            std::cout << "Update..." << std::endl;
+        }
+        void Draw() override
+        {
+            std::cout << "Draw..." << std::endl;
+        }
+    private:
+
+};
+
+class Game
+{
+    public:
+        Game()
+        {
+            InitWindow(screenWidth, screenHeight, "Empire");
+            SetTargetFPS(60);
+
+            //add game objs
+            //gameObjects.push_back(std::make_unique<Panel>());
+        }
+
+        void Run()
+        {
+            while (!WindowShouldClose())
+            {
+                for (auto& obj : gameObjs)
+                {
+                    obj->Update();
+                }
+
+                BeginDrawing();
+                    ClearBackground(RAYWHITE);
+
+                    for (auto& obj : gameObjs)
+                    {
+                        obj->Draw();
+                    }
+                EndDrawing();
+            }
+            CloseWindow();
+        }
 
     private:
-        int x,
-            y,
-            width,
-            height;
-        std::vector<std::shared_ptr<Button>> buttons;
+        const int screenWidth = 1000;
+        const int screenHeight = 800;
+        std::vector<std::unique_ptr<GameObj>> gameObjs;
 };
-
-
-//Functions
-void DrawLeftPanel(const int screenWidth, const int screenHeight)
-{
-    //panel->Draw();
-}
-
-void DrawWindow(const int screenWidth, const int screenHeight)
-{
-    ClearBackground(BLUE);
-
-    //Draw Left Panel
-    DrawLeftPanel(screenWidth, screenHeight);
-    //Draw User made buttons
-}
-
 
 int main()
 {
     std::cout << "We Ball" << std::endl;
-     
-    const int screenWidth = 1000, screenHeight = 800;
-    
-    InitWindow(screenWidth, screenHeight, "Empire");
-    SetTargetFPS(60);
 
-
-    while (!WindowShouldClose())
+    try
     {
-        BeginDrawing();
-            DrawWindow(screenWidth, screenHeight);
-        EndDrawing();
+        auto game = std::make_unique<Game>();
+        game->Run();
     }
-    CloseWindow();
-
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
     return 0;
 }
